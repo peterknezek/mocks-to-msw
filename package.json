@@ -1,8 +1,13 @@
 {
   "name": "mocks-to-msw",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "An adapter that provides mocks generated from the har-to-mocks to the MSW.",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
   "scripts": {
     "dev": "vitest --watch",
     "build": "tsup src/index.ts --format cjs,esm --dts",
