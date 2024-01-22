@@ -1,0 +1,30 @@
+{
+  "name": "mocks-to-msw",
+  "version": "0.0.0",
+  "description": "An adapter that provides mocks generated from the har-to-mocks to the MSW.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vitest --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc",
+    "test": "vitest run --coverage",
+    "test:ci":" vitest run --coverage"
+  },
+  "author": "Peter Knezek @peterknezek",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peterknezek/mocks-to-msw.git"
+  },
+  "bugs": {
+    "url": "https://github.com/peterknezek/mocks-to-msw/issues"
+  },
+  "homepage": "https://github.com/peterknezek/mocks-to-msw#readme",
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@vitest/coverage-v8": "^1.2.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  }
+}
