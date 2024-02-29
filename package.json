@@ -25,6 +25,18 @@
     "url": "https://github.com/peterknezek/mocks-to-msw/issues"
   },
   "homepage": "https://github.com/peterknezek/mocks-to-msw#readme",
+  "keywords": [
+    "mock",
+    "api",
+    "front-end",
+    "handler",
+    "har",
+    "mocking",
+    "mocks",
+    "msw",
+    "har-to-mocks",
+    "typescript"
+  ],
   "peerDependencies": {
     "msw": "^2.0.0"
   },
