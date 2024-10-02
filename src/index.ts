@@ -10,13 +10,13 @@ type ModifierFn<R> = (json: R) => any;
 
 const createMocksRequest =
   (options: CreateMockHandlerOptions) =>
-  <Res>(method: Method, uri: string, modifier?: ModifierFn<Res>) => {
-    const { loader, debug } = options;
+  <Res>(method: Method, pathname: string, modifier?: ModifierFn<Res>) => {
+    const { loader, debug, origin: domain } = options;
     const getMock = () => {
       try {
-        const data = loader(`${uri}/${method}`);
+        const data = loader(`${pathname}/${method}`);
         if (debug) {
-          console.info(`[mocks-to-msw] Mock file was loaded. [${method}]: "${uri}"`);
+          console.info(`[mocks-to-msw] Mock file was loaded. [${method}]: "${pathname}"`);
         }
         if (typeof modifier === "function") {
           return HttpResponse.json(modifier(data));
@@ -24,16 +24,29 @@ const createMocksRequest =
         return HttpResponse.json(data);
       } catch (error) {
         if (debug) {
-          console.error(`[mocks-to-msw] Mock file was not found. [${method}]: "${uri}"`, error);
+          console.error(`[mocks-to-msw] Mock file was not found. [${method}]: "${pathname}"`, error);
         }
       }
     };
 
+    // Construct the URL from the given pathname and domain.
+    const url = ((): string => {
+      if (domain) {
+        try {
+          return new URL(pathname, domain).href;
+        } catch (e) {
+          console.error("Invalid URL", e);
+          return pathname;
+        }
+      }
+      return pathname;
+    })();
+
     if (method === "GET") {
-      return http.get(uri, getMock);
+      return http.get(url, getMock);
     }
     if (method === "POST") {
-      return http.post(uri, getMock);
+      return http.post(url, getMock);
     }
   };
 
@@ -84,6 +97,11 @@ interface CreateMockHandlerOptions {
    * A flag to enable debug logs.
    */
   debug?: boolean;
+  /**
+   * Origin of the URL, that is its scheme, its domain and its port.
+   * @example "https://api.example.com"
+   */
+  origin?: string;
 }
 
 /**

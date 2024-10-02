@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { createMockHandler } from ".";
+import { http } from "msw";
 
 // Mock the msw module
 vi.mock("msw", async (importOriginal) => {
@@ -47,6 +48,19 @@ describe("[createMocksRequest] Loader functionality", () => {
     expect(require).toHaveBeenCalledWith("/api/test/GET");
     expect(require).toHaveBeenCalledWith("/api/test/POST");
     expect(require).toHaveReturnedTimes(2);
+    expect(http.get).toHaveBeenCalledWith("/api/test", expect.any(Function));
+  });
+
+  it("should insercept on specific URI with the setted origin", () => {
+    const require = vi.fn((path: string) => ({}));
+    const loader = (path: string) => require(path);
+    const origin = "https://api.example.com";
+    const path = "/api/test";
+
+    const { mock } = createMockHandler({ loader, origin });
+    mock.get(path);
+
+    expect(http.get).toHaveBeenCalledWith(`${origin}${path}`, expect.any(Function));
   });
 
   it("should call the loader function and return the result to modifier function", () => {
