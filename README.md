@@ -13,18 +13,24 @@ As developers, integrating mock data efficiently into a project using **MSW** (M
 ## How It Works
 
 1. Generate Mocks: Use _"har-to-mocks"_ to generate mocks from actual server responses.
-2. Set Up Mock Handler: Use the `createMockHandler` function provided by _"mocks-to-msw"_ to set up a mock handler. Specify the loader function to load the generated mocks.
+2. Set Up Mock Handler: Use the `createMockHandler` function provided by _"mocks-to-msw"_ to set up a mock handler.
+
+- Specify the `loader` function to load the generated mocks.
+- Optionally, you can set the `origin` of the URL, for example: `https://api.example.com`.
 
 ```ts
 import { createMockHandler } from "mocks-to-msw";
 
 const { mock } = createMockHandler({
   loader: (path) => require(`.${path}.json`),
+  origin: "https://api.example.com",
   debug: true,
 });
 ```
 
-3. Define Request Handlers: Use the `mock` handler to define which specific URIs will be replacing with the mocks.
+1. Define Request Handlers: Use the `mock` handler to define which specific URIs will be replaced with the mocks.
+
+- _Note: If you set the origin, the code below will mock the URI `https://api.example.com/api/test`_.
 
 ```ts
 export const handlers = [mock.get("/api/test")];
