@@ -11,7 +11,7 @@ type ModifierFn<R> = (json: R) => any;
 const createMocksRequest =
   (options: CreateMockHandlerOptions) =>
   <Res>(method: Method, pathname: string, modifier?: ModifierFn<Res>) => {
-    const { loader, debug, origin: domain } = options;
+    const { loader, debug, origin } = options;
     const getMock = () => {
       try {
         const data = loader(`${pathname}/${method}`);
@@ -31,11 +31,16 @@ const createMocksRequest =
 
     // Construct the URL from the given pathname and domain.
     const url = ((): string => {
-      if (domain) {
+      if (origin) {
         try {
-          return new URL(pathname, domain).href;
+          return new URL(pathname, origin).href;
         } catch (e) {
-          console.error("Invalid URL", e);
+          if (debug) {
+            console.error(
+              `[mocks-to-msw] Invalid URL. The provided option for a createMockHandler, the URL's origin, has the issue. Values: [origin]: "${origin}" [pathname]: "${pathname}"`,
+              e
+            );
+          }
           return pathname;
         }
       }
