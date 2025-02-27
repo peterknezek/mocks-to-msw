@@ -12,9 +12,9 @@ const createMocksRequest =
   (options: CreateMockHandlerOptions) =>
   <Res>(method: Method, pathname: string, modifier?: ModifierFn<Res>) => {
     const { loader, debug, origin } = options;
-    const getMock = () => {
+    const getMock = async () => {
       try {
-        const data = loader(`${pathname}/${method}`);
+        const data = await loader(`${pathname}/${method}`);
         if (debug) {
           console.info(`[mocks-to-msw] Mock file was loaded. [${method}]: "${pathname}"`);
         }
