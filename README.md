@@ -21,8 +21,14 @@ As developers, integrating mock data efficiently into a project using **MSW** (M
 ```ts
 import { createMockHandler } from "mocks-to-msw";
 
+// Async variation by using the import
+// const mocks = {
+//   '/api/user/1/GET': import('./api/user/1/GET.json'),
+// } as const;
+
 const { mock } = createMockHandler({
   loader: (path) => require(`.${path}.json`),
+  // loader: async (path) => mocks[path].then((res) => res.default),
   origin: "https://api.example.com",
   debug: true,
 });
@@ -52,12 +58,28 @@ Install _"mocks-to-msw"_ as dev dependencies.
 npm install mocks-to-msw --save-dev
 ```
 
-### Usage example
+### Usage example sync/async
 
 ```ts
-// src/mocks/handlers.js
+// Using import (async) src/mocks/handlers.js
+import { createMockHandler } from "mocks-to-msw";
+
+const mocks = {
+  "/api/user/1/GET": import("./api/user/1/GET.json"),
+} as const;
+
+const { mock } = createMockHandler<keyof typeof mocks>({
+  loader: async (path) => mocks[path].then((res) => res.default),
+});
+
+export const handlers = [mocks.get("/api/user/1")];
+```
+
+```ts
+// Using require (sync) src/mocks/handlers.js
 // 1. Import the library.
 import { createMockHandler } from "mocks-to-msw";
+
 // 2. Set up the mock handler using the createMockHandler function and specify the loader
 const { mock } = createMockHandler({ loader: (path) => require(`.${path}.json`), debug: true });
 
