@@ -2,6 +2,7 @@ import { http, HttpResponse } from "msw";
 
 type SupportedMethods = Extract<keyof typeof http, "get" | "post">;
 type Method = Uppercase<SupportedMethods>;
+type Path = `${string}/${Method}`;
 
 /**
  * Function with can be modified the response data.
@@ -9,12 +10,12 @@ type Method = Uppercase<SupportedMethods>;
 type ModifierFn<R> = (json: R) => any;
 
 const createMocksRequest =
-  (options: CreateMockHandlerOptions) =>
+  <P extends Path>(options: CreateMockHandlerOptions<P>) =>
   <Res>(method: Method, pathname: string, modifier?: ModifierFn<Res>) => {
     const { loader, debug, origin } = options;
     const getMock = async () => {
       try {
-        const data = await loader(`${pathname}/${method}`);
+        const data = await loader(`${pathname}/${method}` as P);
         if (debug) {
           console.info(`[mocks-to-msw] Mock file was loaded. [${method}]: "${pathname}"`);
         }
@@ -55,7 +56,7 @@ const createMocksRequest =
     }
   };
 
-const createMockNamespace = (options: CreateMockHandlerOptions) => {
+const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P>) => {
   const mocksRequest = createMocksRequest(options);
   return {
     /**
@@ -82,14 +83,14 @@ const createMockNamespace = (options: CreateMockHandlerOptions) => {
     post: (uri, modifier?) => mocksRequest("POST", uri, modifier),
   } satisfies Record<
     SupportedMethods,
-    <ResponseType extends Record<string, any>>(
-      uri: string,
+    <ResponseType = Record<string, any>>(
+      uri: P extends Path & `${infer Uri}/${Method}` ? Uri : never,
       modifier?: ModifierFn<ResponseType>
     ) => ReturnType<typeof mocksRequest>
   >;
 };
 
-interface CreateMockHandlerOptions {
+interface CreateMockHandlerOptions<Paths extends `${string}/${Method}`> {
   /**
    * A function that loads a mock file by the given path.
    * @example
@@ -97,7 +98,7 @@ interface CreateMockHandlerOptions {
    * const loader = (path) => require(`.${path}.json`)
    * ```
    */
-  loader: (path: string) => any;
+  loader: (path: Paths) => any;
   /**
    * A flag to enable debug logs.
    */
@@ -114,12 +115,25 @@ interface CreateMockHandlerOptions {
  * @param options The options to create a mock handler.
  * @example
  * ```ts
+ * // Using import (async)
+ * const mocks = {
+ *   '/api/user/1/GET': import('./api/user/1/GET.json'),
+ * } as const;
+ *
+ * const { mock } = createMockHandler<keyof typeof mocks>({
+ *   loader: async (path) => mocks[path].then((res) => res.default),
+ * });
+ * ```
+ *
+ * @example
+ * ```ts
+ * // Using require (sync)
  * const { mock } = createMockHandler({
  *  loader: (path) => require(`.${path}.json`)
  * })
  * ```
  */
-export const createMockHandler = (options: CreateMockHandlerOptions) => ({
+export const createMockHandler = <P extends Path>(options: CreateMockHandlerOptions<P>) => ({
   /**
    * A namespace to intercept and mock HTTP requests.
    *
