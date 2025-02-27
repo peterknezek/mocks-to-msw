@@ -63,27 +63,31 @@ describe("[createMocksRequest] Loader functionality", () => {
     expect(http.get).toHaveBeenCalledWith(`${origin}${path}`, expect.any(Function));
   });
 
-  it("should call the loader function and return the result to modifier function", () => {
+  it("should call the loader function and return the result to modifier function", async () => {
     const expected = { test: "value" };
     const require = vi.fn((path: string) => expected);
     const loader = (path: string) => require(path);
     const modifier = vi.fn((data: any) => data);
 
-    const { mock } = createMockHandler({ loader });
-    mock.get("/api/test", modifier);
+    await vi.waitFor(async () => {
+      const { mock } = createMockHandler({ loader });
+      mock.get("/api/test", modifier);
+    });
 
     expect(modifier).toHaveBeenCalledTimes(1);
     expect(modifier).toHaveBeenCalledWith(expected);
   });
 
-  it("should log an info message when debug is true and the loader function does not throw an error", () => {
+  it("should log an info message when debug is true and the loader function does not throw an error", async () => {
     const consoleInfoSpy = vi.spyOn(console, "info").mockImplementation(() => {});
 
     const require = vi.fn((path: string) => "{}");
     const loader = (path: string) => require(path);
 
-    const { mock } = createMockHandler({ loader, debug: true });
-    mock.get("/api/test");
+    await vi.waitFor(async () => {
+      const { mock } = createMockHandler({ loader, debug: true });
+      mock.get("/api/test");
+    });
 
     expect(consoleInfoSpy).toHaveBeenCalledWith('[mocks-to-msw] Mock file was loaded. [GET]: "/api/test"');
     consoleInfoSpy.mockClear();
