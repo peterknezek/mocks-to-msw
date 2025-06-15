@@ -1,5 +1,5 @@
 /* v8 ignore start */
-import { createMockHandler } from ".";
+import { createMockHandler } from "./index.js";
 
 // Define mock data imports
 const mocks = {

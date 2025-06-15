@@ -2,9 +2,13 @@
   "name": "mocks-to-msw",
   "version": "0.0.0",
   "description": "An adapter that provides mocks generated from the har-to-mocks to the MSW.",
+  "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "generate-mocks": "./dist/generate-mocks.js"
+  },
   "files": [
     "/dist"
   ],
@@ -13,11 +17,16 @@
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
       "import": "./dist/index.mjs"
+    },
+    "./generate-mocks": {
+      "types": "./dist/generate-mocks.d.ts",
+      "require": "./dist/generate-mocks.js",
+      "import": "./dist/generate-mocks.mjs"
     }
   },
   "scripts": {
     "dev": "vitest --watch",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts src/generate-mocks.ts --format cjs,esm --dts",
     "lint": "tsc",
     "test": "vitest run --coverage",
     "test:ci": "vitest run --coverage"
@@ -48,6 +57,7 @@
     "msw": ">=2"
   },
   "devDependencies": {
+    "@types/node": "^24.0.1",
     "@vitest/coverage-v8": "^3.2.3",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",

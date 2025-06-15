@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createMockHandler } from ".";
+import { createMockHandler } from "./index.js";
 import { http } from "msw";
 
 // Mock the msw module
