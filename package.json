@@ -8,6 +8,13 @@
   "files": [
     "/dist"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
   "scripts": {
     "dev": "vitest --watch",
     "build": "tsup src/index.ts --format cjs,esm --dts",
@@ -41,10 +48,10 @@
     "msw": ">=2"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^3.1.1",
-    "tsup": "^8.4.0",
+    "@vitest/coverage-v8": "^3.2.3",
+    "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "vitest": "^3.0.9"
+    "vitest": "^3.2.3"
   },
   "release": {
     "branches": [
