@@ -27,26 +27,50 @@ As developers, integrating mock data efficiently into a project using **MSW** (M
 
 ### Automatic Mock Generation
 
-The package includes a CLI tool that automatically generates type-safe mock imports from your JSON mock files:
+The package includes a CLI tool that automatically generates type-safe mock imports from your JSON mock files.
 
-```bash
-# Add this to your package.json scripts
-"generate-mocks": "generate-mocks --folder='src/mocks/api' --output='src/mocks/mocks.ts'"
+#### Setup
+
+Add this to your package.json scripts:
+
+```json
+{
+  "scripts": {
+    "generate-mocks": "generate-mocks --folder='src/mocks/api' --output='src/mocks/mocks.ts'"
+  }
+}
 ```
 
-This will generate a `mocks.ts` file with all your mock imports:
+#### Project Structure
+
+```
+project/
+  ├── src/
+  │   └── mocks/
+  │       ├── api/                    # Input folder for JSON mocks
+  │       │   ├── client/
+  │       │   │   └── GET.json
+  │       │   └── client/
+  │       │       └── application/
+  │       │           └── GET.json
+  │       └── mocks.ts               # Generated output file
+```
+
+#### Generated Output
+
+Running the generator will create a `mocks.ts` file with all your mock imports:
 
 ```ts
 // src/mocks/mocks.ts
 const mocks = {
-  "/api/user/GET": import("./api/user/GET.json"),
-  "/api/user/POST": import("./api/user/POST.json"),
+  "/client/GET": import("./api/client/GET.json"),
+  "/client/application/GET": import("./api/client/application/GET.json"),
 } as const;
 
 export default mocks;
 ```
 
-Then use it with `createMockHandler`:
+#### Usage with createMockHandler
 
 ```ts
 import { createMockHandler } from "mocks-to-msw";
@@ -69,10 +93,10 @@ interface User {
 // Use type-safe mock handlers
 export const handlers = [
   // GET request with type-safe response
-  mock.get<User>("/api/user"),
+  mock.get<User>("/client"),
 
   // POST request with response modifier
-  mock.post("/api/user", (user) => ({
+  mock.post("/client/application", (user) => ({
     ...user,
     name: user.name.toUpperCase(),
   })),
@@ -106,7 +130,10 @@ const { mock } = createMockHandler<keyof typeof mocks>({
 });
 
 // Type-safe handlers
-export const handlers = [mock.get("/api/user"), mock.post("/api/user", (data) => ({ ...data, modified: true }))];
+export const handlers = [
+  mock.get("/client"),
+  mock.post("/client/application", (data) => ({ ...data, modified: true })),
+];
 ```
 
 ## Project Description
