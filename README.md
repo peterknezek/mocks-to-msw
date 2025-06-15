@@ -17,20 +17,40 @@ As developers, integrating mock data efficiently into a project using **MSW** (M
 - Response modifiers to transform mock data
 - Debug mode for development
 - URL origin configuration
+- Automatic mock file generation with type safety
 
 ## How It Works
 
 1. Generate Mocks: Use _"har-to-mocks"_ to generate mocks from actual server responses.
-2. Set Up Mock Handler: Use the `createMockHandler` function provided by _"mocks-to-msw"_ to set up a mock handler.
+2. Generate Mock Imports: Use the built-in generator to create type-safe mock imports.
+3. Set Up Mock Handler: Use the `createMockHandler` function provided by _"mocks-to-msw"_ to set up a mock handler.
+
+### Automatic Mock Generation
+
+The package includes a CLI tool that automatically generates type-safe mock imports from your JSON mock files:
+
+```bash
+# Add this to your package.json scripts
+"generate-mocks": "generate-mocks --folder='src/mocks/api' --output='src/mocks/mocks.ts'"
+```
+
+This will generate a `mocks.ts` file with all your mock imports:
 
 ```ts
-import { createMockHandler } from "mocks-to-msw";
-
-// Define your mock imports
+// src/mocks/mocks.ts
 const mocks = {
   "/api/user/GET": import("./api/user/GET.json"),
   "/api/user/POST": import("./api/user/POST.json"),
 } as const;
+
+export default mocks;
+```
+
+Then use it with `createMockHandler`:
+
+```ts
+import { createMockHandler } from "mocks-to-msw";
+import mocks from "./mocks/mocks";
 
 // Create type-safe mock handler
 const { mock } = createMockHandler<keyof typeof mocks>({
@@ -77,12 +97,7 @@ npm install mocks-to-msw --save-dev
 
 ```ts
 import { createMockHandler } from "mocks-to-msw";
-
-// Define mock imports
-const mocks = {
-  "/api/user/GET": import("./api/user/GET.json"),
-  "/api/user/POST": import("./api/user/POST.json"),
-} as const;
+import mocks from "./mocks/mocks";
 
 // Create type-safe mock handler
 const { mock } = createMockHandler<keyof typeof mocks>({
@@ -105,3 +120,4 @@ _"mocks-to-msw"_ serves as an adapter, facilitating the integration of mocks gen
 - **Response Modification**: Ability to transform mock data before sending
 - **Debug Support**: Helpful logging during development
 - **URL Configuration**: Optional origin configuration for complete URLs
+- **Automatic Mock Generation**: CLI tool to generate type-safe mock imports
