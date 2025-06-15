@@ -5,17 +5,34 @@ type Method = Uppercase<SupportedMethods>;
 type Path = `${string}/${Method}`;
 
 /**
+ * Extracts the base URL from a path by removing the method suffix
+ */
+type ExtractBaseUrl<T extends Path> = T extends `${infer U}/${Method}` ? U : never;
+
+/**
+ * Maps methods to their allowed paths
+ */
+type MethodToPath<P extends Path> = {
+  [M in Method]: ExtractBaseUrl<Extract<P, `${string}/${M}`>>;
+};
+
+/**
  * Function with can be modified the response data.
  */
 type ModifierFn<R> = (json: R) => any;
 
+type MockImport = Promise<{ default: any }>;
+
+type MocksRequestReturn = ReturnType<typeof http.get> | undefined;
+
 const createMocksRequest =
   <P extends Path>(options: CreateMockHandlerOptions<P>) =>
   <Res>(method: Method, pathname: string, modifier?: ModifierFn<Res>) => {
-    const { loader, debug, origin } = options;
+    const { mocks, debug, origin } = options;
     const getMock = async () => {
       try {
-        const data = await loader(`${pathname}/${method}` as P);
+        const mockPath = `${pathname}/${method}` as P;
+        const data = await mocks[mockPath].then((res) => res.default);
         if (debug) {
           console.info(`[mocks-to-msw] Mock file was loaded. [${method}]: "${pathname}"`);
         }
@@ -56,7 +73,18 @@ const createMocksRequest =
     }
   };
 
-const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P>) => {
+type MockNamespace<P extends Path> = {
+  get: <ResponseType = Record<string, any>>(
+    uri: MethodToPath<P>["GET"],
+    modifier?: ModifierFn<ResponseType>
+  ) => MocksRequestReturn;
+  post: <ResponseType = Record<string, any>>(
+    uri: MethodToPath<P>["POST"],
+    modifier?: ModifierFn<ResponseType>
+  ) => MocksRequestReturn;
+};
+
+const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P>): MockNamespace<P> => {
   const mocksRequest = createMocksRequest(options);
   return {
     /**
@@ -69,7 +97,8 @@ const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P
      * mock.get('/api/user', (json) => ({ ...json, data: 'modified' }))
      * ```
      */
-    get: (uri, modifier?) => mocksRequest("GET", uri, modifier),
+    get: <ResponseType = Record<string, any>>(uri: MethodToPath<P>["GET"], modifier?: ModifierFn<ResponseType>) =>
+      mocksRequest("GET", uri, modifier),
     /**
      * Mocks a POST request to the given URI.
      * @param uri The URI to intercept.
@@ -80,25 +109,23 @@ const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P
      * mock.post('/api/user', (json) => ({ ...json, data: 'modified' }))
      * ```
      */
-    post: (uri, modifier?) => mocksRequest("POST", uri, modifier),
-  } satisfies Record<
-    SupportedMethods,
-    <ResponseType = Record<string, any>>(
-      uri: P extends Path & `${infer Uri}/${Method}` ? Uri : never,
-      modifier?: ModifierFn<ResponseType>
-    ) => ReturnType<typeof mocksRequest>
-  >;
+    post: <ResponseType = Record<string, any>>(uri: MethodToPath<P>["POST"], modifier?: ModifierFn<ResponseType>) =>
+      mocksRequest("POST", uri, modifier),
+  };
 };
 
-interface CreateMockHandlerOptions<Paths extends `${string}/${Method}`> {
+interface CreateMockHandlerOptions<Paths extends Path> {
   /**
-   * A function that loads a mock file by the given path.
+   * A record of mock imports for each path.
    * @example
    * ```ts
-   * const loader = (path) => require(`.${path}.json`)
+   * const mocks = {
+   *   '/api/user/GET': import('./api/user/GET.json'),
+   *   '/api/user/POST': import('./api/user/POST.json'),
+   * } as const;
    * ```
    */
-  loader: (path: Paths) => any;
+  mocks: Record<Paths, MockImport>;
   /**
    * A flag to enable debug logs.
    */
@@ -115,22 +142,14 @@ interface CreateMockHandlerOptions<Paths extends `${string}/${Method}`> {
  * @param options The options to create a mock handler.
  * @example
  * ```ts
- * // Using import (async)
  * const mocks = {
- *   '/api/user/1/GET': import('./api/user/1/GET.json'),
+ *   '/api/user/GET': import('./api/user/GET.json'),
+ *   '/api/user/POST': import('./api/user/POST.json'),
  * } as const;
  *
  * const { mock } = createMockHandler<keyof typeof mocks>({
- *   loader: async (path) => mocks[path].then((res) => res.default),
+ *   mocks,
  * });
- * ```
- *
- * @example
- * ```ts
- * // Using require (sync)
- * const { mock } = createMockHandler({
- *  loader: (path) => require(`.${path}.json`)
- * })
  * ```
  */
 export const createMockHandler = <P extends Path>(options: CreateMockHandlerOptions<P>) => ({
