@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-type SupportedMethods = Extract<keyof typeof http, "get" | "post">;
+type SupportedMethods = Extract<keyof typeof http, "get" | "post" | "put" | "delete">;
 type Method = Uppercase<SupportedMethods>;
 type Path = `${string}/${Method}`;
 
@@ -71,6 +71,12 @@ const createMocksRequest =
     if (method === "POST") {
       return http.post(url, getMock);
     }
+    if (method === "PUT") {
+      return http.put(url, getMock);
+    }
+    if (method === "DELETE") {
+      return http.delete(url, getMock);
+    }
   };
 
 type MockNamespace<P extends Path> = {
@@ -80,6 +86,14 @@ type MockNamespace<P extends Path> = {
   ) => MocksRequestReturn;
   post: <ResponseType = Record<string, any>>(
     uri: MethodToPath<P>["POST"],
+    modifier?: ModifierFn<ResponseType>
+  ) => MocksRequestReturn;
+  put: <ResponseType = Record<string, any>>(
+    uri: MethodToPath<P>["PUT"],
+    modifier?: ModifierFn<ResponseType>
+  ) => MocksRequestReturn;
+  delete: <ResponseType = Record<string, any>>(
+    uri: MethodToPath<P>["DELETE"],
     modifier?: ModifierFn<ResponseType>
   ) => MocksRequestReturn;
 };
@@ -111,6 +125,30 @@ const createMockNamespace = <P extends Path>(options: CreateMockHandlerOptions<P
      */
     post: <ResponseType = Record<string, any>>(uri: MethodToPath<P>["POST"], modifier?: ModifierFn<ResponseType>) =>
       mocksRequest("POST", uri, modifier),
+    /**
+     * Mocks a PUT request to the given URI.
+     * @param uri The URI to intercept.
+     * @param modifier A function that modifies the response data.
+     * @example
+     * ```ts
+     * mock.put('/api/user')
+     * mock.put('/api/user', (json) => ({ ...json, data: 'modified' }))
+     * ```
+     */
+    put: <ResponseType = Record<string, any>>(uri: MethodToPath<P>["PUT"], modifier?: ModifierFn<ResponseType>) =>
+      mocksRequest("PUT", uri, modifier),
+    /**
+     * Mocks a DELETE request to the given URI.
+     * @param uri The URI to intercept.
+     * @param modifier A function that modifies the response data.
+     * @example
+     * ```ts
+     * mock.delete('/api/user')
+     * mock.delete('/api/user', (json) => ({ ...json, data: 'modified' }))
+     * ```
+     */
+    delete: <ResponseType = Record<string, any>>(uri: MethodToPath<P>["DELETE"], modifier?: ModifierFn<ResponseType>) =>
+      mocksRequest("DELETE", uri, modifier),
   };
 };
 
