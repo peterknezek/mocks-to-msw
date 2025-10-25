@@ -23,7 +23,7 @@ type ModifierFn<R> = (json: R) => any;
 
 type MockImport = Promise<{ default: any }>;
 
-type MocksRequestReturn = ReturnType<typeof http.get> | undefined;
+type MocksRequestReturn = ReturnType<typeof http.get>;
 
 const createMocksRequest =
   <P extends Path>(options: CreateMockHandlerOptions<P>) =>
@@ -65,17 +65,15 @@ const createMocksRequest =
       return pathname;
     })();
 
-    if (method === "GET") {
-      return http.get(url, getMock);
-    }
-    if (method === "POST") {
-      return http.post(url, getMock);
-    }
-    if (method === "PUT") {
-      return http.put(url, getMock);
-    }
-    if (method === "DELETE") {
-      return http.delete(url, getMock);
+    switch (method) {
+      case "GET":
+        return http.get(url, getMock);
+      case "POST":
+        return http.post(url, getMock);
+      case "PUT":
+        return http.put(url, getMock);
+      case "DELETE":
+        return http.delete(url, getMock);
     }
   };
 
