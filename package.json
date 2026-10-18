@@ -21,7 +21,7 @@
   },
   "scripts": {
     "dev": "vitest --watch",
-    "build": "tsdown src/index.ts src/generate-mocks.ts --format cjs,esm --dts --no-fixed-extension",
+    "build": "bun scripts/build.ts",
     "lint": "tsc --noEmit",
     "test": "vitest run --coverage",
     "test:ci": "vitest run --coverage"
@@ -54,7 +54,6 @@
   "devDependencies": {
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^5.0.5",
-    "tsdown": "^0.23.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vitest": "^5.0.5"
