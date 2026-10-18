@@ -1,4 +1,3 @@
-/* v8 ignore start */
 import { createMockHandler } from "./index.js";
 
 // Define mock data imports
@@ -33,5 +32,3 @@ mock.get<User>("/api/user", (user) => ({
   ...user,
   name: user.name.toUpperCase(),
 }));
-
-/* v8 ignore stop */

@@ -20,11 +20,11 @@
     }
   },
   "scripts": {
-    "dev": "vitest --watch",
+    "dev": "bun test --watch",
     "build": "bun scripts/build.ts",
-    "lint": "tsc --noEmit",
-    "test": "vitest run --coverage",
-    "test:ci": "vitest run --coverage"
+    "lint": "tsc --noEmit && oxlint --type-aware --deny-warnings src scripts",
+    "test": "bun test --coverage",
+    "test:ci": "bun test --coverage"
   },
   "author": "Peter Knezek @peterknezek",
   "license": "MIT",
@@ -52,11 +52,11 @@
     "msw": ">=2"
   },
   "devDependencies": {
+    "@types/bun": "^1.4.3",
     "@types/node": "^26.6.5",
-    "@vitest/coverage-v8": "^5.0.5",
-    "typescript": "^7.0.2",
-    "vite": "^8.3.4",
-    "vitest": "^5.0.5"
+    "oxlint": "^1.88.0",
+    "oxlint-tsgolint": "^7.0.2004",
+    "typescript": "^7.0.2"
   },
   "release": {
     "branches": [
