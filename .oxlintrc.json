@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "overrides": [
+    {
+      // msw's http.* is mocked in tests to return the resolver's promise,
+      // so awaiting mock.get() etc. is intentional despite its declared type
+      "files": ["src/**/*.test.ts"],
+      "rules": {
+        "typescript/await-thenable": "off"
+      }
+    }
+  ]
+}

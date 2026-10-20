@@ -1,10 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
-import { createMockHandler } from "./index.js";
-import { http } from "msw";
+import { describe, expect, it, vi } from "bun:test";
 
 // Mock the msw module
-vi.mock("msw", async (importOriginal) => {
-  const mod = await importOriginal<typeof import("msw")>();
+const mod = await import("msw");
+await vi.mock("msw", () => {
   return {
     ...mod,
     // replace some exports
@@ -15,6 +13,10 @@ vi.mock("msw", async (importOriginal) => {
     },
   };
 });
+
+// Imported after mocking so they bind to the mocked msw
+const { createMockHandler } = await import("./index.js");
+const { http } = await import("msw");
 
 describe("[createMockHandler] Parts of the module setup", () => {
   it("should return an object with a mock property", () => {
@@ -86,10 +88,8 @@ describe("[createMocksRequest] Mocks functionality", () => {
     };
     const modifier = vi.fn((data: any) => data);
 
-    await vi.waitFor(async () => {
-      const { mock } = createMockHandler({ mocks });
-      await mock.get("/api/test", modifier);
-    });
+    const { mock } = createMockHandler({ mocks });
+    await mock.get("/api/test", modifier);
 
     expect(modifier).toHaveBeenCalledTimes(1);
     expect(modifier).toHaveBeenCalledWith(expected);
@@ -102,10 +102,8 @@ describe("[createMocksRequest] Mocks functionality", () => {
       "/api/test/GET": Promise.resolve({ default: {} }),
     };
 
-    await vi.waitFor(async () => {
-      const { mock } = createMockHandler({ mocks, debug: true });
-      await mock.get("/api/test");
-    });
+    const { mock } = createMockHandler({ mocks, debug: true });
+    await mock.get("/api/test");
 
     expect(consoleInfoSpy).toHaveBeenCalledWith('[mocks-to-msw] Mock file was loaded. [GET]: "/api/test"');
     consoleInfoSpy.mockClear();

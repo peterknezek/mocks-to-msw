@@ -75,7 +75,7 @@ const createMocksRequest =
       case "DELETE":
         return http.delete(url, getMock);
       default:
-        throw new Error(`Invalid method: ${method satisfies never}`);
+        throw new Error(`Invalid method: ${String(method satisfies never)}`);
     }
   };
 
