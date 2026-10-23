@@ -23,6 +23,8 @@
     "dev": "bun test --watch",
     "build": "bun scripts/build.ts",
     "lint": "bun check && oxlint --type-aware --deny-warnings src scripts",
+    "format": "bun fmt",
+    "format:check": "bun fmt --check",
     "test": "bun test --coverage",
     "test:ci": "bun test --coverage"
   },
