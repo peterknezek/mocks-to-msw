@@ -54,8 +54,7 @@ function parseArgs(): { folder: string; output: string } {
   });
 
   // npm scripts on Windows pass quotes through to the process, so strip surrounding quotes
-  const stripQuotes = (value: unknown) =>
-    typeof value === "string" ? value.replace(/^['"]|['"]$/g, "") : undefined;
+  const stripQuotes = (value: unknown) => (typeof value === "string" ? value.replace(/^['"]|['"]$/g, "") : undefined);
   const folder = stripQuotes(values.folder);
   const output = stripQuotes(values.output);
 

@@ -19,24 +19,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version-file: '.nvmrc'
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version-file: '.bun-version'
+          bun-version-file: ".bun-version"
 
       - name: Install Dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
+
+      - name: Check formatting
+        run: bun run format:check
 
       - name: Lint
-        run: npm run lint
+        run: bun run lint
 
       - name: Test
-        run: npm run test:ci
+        run: bun run test:ci
 
       - name: Test build
-        run: npm run build
+        run: bun run build

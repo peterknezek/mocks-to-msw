@@ -22,7 +22,9 @@
   "scripts": {
     "dev": "bun test --watch",
     "build": "bun scripts/build.ts",
-    "lint": "tsc --noEmit && oxlint --type-aware --deny-warnings src scripts",
+    "lint": "bun check && oxlint --type-aware --deny-warnings src scripts",
+    "format": "bun fmt",
+    "format:check": "bun fmt --check",
     "test": "bun test --coverage",
     "test:ci": "bun test --coverage"
   },
@@ -52,7 +54,7 @@
     "msw": ">=2"
   },
   "devDependencies": {
-    "@types/bun": "^1.4.3",
+    "@types/bun": "^1.4.4",
     "@types/node": "^26.6.5",
     "oxlint": "^1.88.0",
     "oxlint-tsgolint": "^7.0.2004",
@@ -60,8 +62,20 @@
   },
   "release": {
     "branches": [
-      "main",
-      "next"
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/exec",
+        {
+          "verifyConditionsCmd": "bun pm whoami",
+          "prepareCmd": "bun pm pkg set version=${nextRelease.version}",
+          "publishCmd": "bun publish"
+        }
+      ],
+      "@semantic-release/github"
     ]
   }
 }
