@@ -62,8 +62,20 @@
   },
   "release": {
     "branches": [
-      "main",
-      "next"
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/exec",
+        {
+          "verifyConditionsCmd": "bun pm whoami",
+          "prepareCmd": "bun pm pkg set version=${nextRelease.version}",
+          "publishCmd": "bun publish"
+        }
+      ],
+      "@semantic-release/github"
     ]
   }
 }
