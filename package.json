@@ -22,7 +22,7 @@
   "scripts": {
     "dev": "bun test --watch",
     "build": "bun scripts/build.ts",
-    "lint": "tsc --noEmit && oxlint --type-aware --deny-warnings src scripts",
+    "lint": "bun check && oxlint --type-aware --deny-warnings src scripts",
     "test": "bun test --coverage",
     "test:ci": "bun test --coverage"
   },
