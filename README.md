@@ -121,6 +121,8 @@ Before using _"mocks-to-msw"_, make sure to install the _"msw"_ package. Refer t
 npm install mocks-to-msw --save-dev
 ```
 
+_"mocks-to-msw"_ is published as an ES module only and needs Node.js 20.19+ or 22.12+. On those versions CommonJS code can still load it with `require("mocks-to-msw")`.
+
 ### Usage Example
 
 ```ts

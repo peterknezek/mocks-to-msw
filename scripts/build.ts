@@ -1,23 +1,15 @@
 import { $ } from "bun";
-import { copyFile, rm } from "node:fs/promises";
-
-const entries = ["index", "generate-mocks"];
+import { rm } from "node:fs/promises";
 
 await rm("dist", { recursive: true, force: true });
 
-for (const format of ["esm", "cjs"] as const) {
-  await Bun.build({
-    entrypoints: entries.map((name) => `src/${name}.ts`),
-    outdir: "dist",
-    target: "node",
-    format,
-    packages: "external",
-    naming: format === "cjs" ? "[dir]/[name].cjs" : "[dir]/[name].js",
-  });
-}
+await Bun.build({
+  entrypoints: ["src/index.ts", "src/generate-mocks.ts"],
+  outdir: "dist",
+  target: "node",
+  format: "esm",
+  packages: "external",
+});
 
-// bun build does not emit declarations; tsc does, and the CJS entry gets a copy
+// bun build does not emit declarations; tsc does
 await $`tsc -p tsconfig.build.json`;
-for (const name of entries) {
-  await copyFile(`dist/${name}.d.ts`, `dist/${name}.d.cts`);
-}

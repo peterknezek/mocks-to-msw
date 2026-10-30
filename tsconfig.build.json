@@ -4,5 +4,5 @@
     "rootDir": "src",
     "emitDeclarationOnly": true
   },
-  "include": ["src/index.ts", "src/generate-mocks.ts"]
+  "include": ["src/index.ts"]
 }
