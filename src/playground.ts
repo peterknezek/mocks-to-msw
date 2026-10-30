@@ -2,8 +2,8 @@ import { createMockHandler } from "./index.js";
 
 // Define mock data imports
 const mocks = {
-  "/api/user/GET": import("./GET.json"),
-  "/uniq/POST": import("./GET.json"),
+  "/api/user/GET": import("./GET.json", { with: { type: "json" } }),
+  "/uniq/POST": import("./GET.json", { with: { type: "json" } }),
 } as const;
 
 // Create mock handler with type checking
