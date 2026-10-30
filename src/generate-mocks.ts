@@ -36,8 +36,9 @@ function scanDirectory(dir: string, basePath: string, outputFile: string): MockE
       const relativeImportPath = path.relative(outputDir, fullPath).split(path.sep).join("/");
       const normalizedImportPath = relativeImportPath.startsWith(".") ? relativeImportPath : `./${relativeImportPath}`;
 
+      // Node (and so msw/node without a bundler) only imports JSON with the import attribute
       const key = mockPath ? `/${mockPath}/${method}` : `/${method}`;
-      result[key] = `import('${normalizedImportPath}')`;
+      result[key] = `import('${normalizedImportPath}', { with: { type: 'json' } })`;
     }
   });
 

@@ -158,8 +158,8 @@ interface CreateMockHandlerOptions<Paths extends Path> {
    * @example
    * ```ts
    * const mocks = {
-   *   '/api/user/GET': import('./api/user/GET.json'),
-   *   '/api/user/POST': import('./api/user/POST.json'),
+   *   '/api/user/GET': import('./api/user/GET.json', { with: { type: 'json' } }),
+   *   '/api/user/POST': import('./api/user/POST.json', { with: { type: 'json' } }),
    * } as const;
    * ```
    */
@@ -181,8 +181,8 @@ interface CreateMockHandlerOptions<Paths extends Path> {
  * @example
  * ```ts
  * const mocks = {
- *   '/api/user/GET': import('./api/user/GET.json'),
- *   '/api/user/POST': import('./api/user/POST.json'),
+ *   '/api/user/GET': import('./api/user/GET.json', { with: { type: 'json' } }),
+ *   '/api/user/POST': import('./api/user/POST.json', { with: { type: 'json' } }),
  * } as const;
  *
  * const { mock } = createMockHandler<keyof typeof mocks>({

@@ -65,12 +65,14 @@ Running the generator will create a `mocks.ts` file with all your mock imports:
 ```ts
 // src/mocks/mocks.ts
 const mocks = {
-  "/client/GET": import("./api/client/GET.json"),
-  "/client/application/GET": import("./api/client/application/GET.json"),
+  "/client/application/GET": import("./api/client/application/GET.json", { with: { type: "json" } }),
+  "/client/GET": import("./api/client/GET.json", { with: { type: "json" } }),
 } as const;
 
 export default mocks;
 ```
+
+The `{ with: { type: 'json' } }` import attribute is the standard way to import JSON. Node.js requires it, so `mocks.ts` also loads when `msw/node` runs without a bundler, and bundlers such as Vite accept it as well. For TypeScript, set `"module"` to `"esnext"`, `"nodenext"` or `"preserve"` in the tsconfig that covers `mocks.ts`; with `"commonjs"` or `"es2022"` TypeScript reports error TS1324.
 
 #### Usage with createMockHandler
 
